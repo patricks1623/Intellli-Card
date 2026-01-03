@@ -159,7 +159,7 @@ const App: React.FC = () => {
       <nav className="sticky top-0 z-40 bg-white/60 dark:bg-zinc-950/60 backdrop-blur-xl border-b dark:border-zinc-900">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="bg-blue-600 p-2.5 rounded-[14px] text-white shadow-lg shadow-blue-500/20">
+            <div className="bg-red-600 p-2.5 rounded-[14px] text-white shadow-lg shadow-red-500/20">
               <Wallet size={24} strokeWidth={2.5} />
             </div>
             <div>
