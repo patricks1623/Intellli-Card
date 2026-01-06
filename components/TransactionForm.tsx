@@ -1,22 +1,17 @@
 
 import React, { useState, useEffect } from 'react';
 import { CreditCard, Transaction } from '../types';
-import { RefreshCw, Trash2 } from 'lucide-react';
+import { RefreshCw, Trash2, X } from 'lucide-react';
 
 interface TransactionFormProps {
   cards: CreditCard[];
   onSave: (transaction: Transaction) => void;
-  onDelete?: (id: string) => void; // Prop opcional para exclusão
+  onDelete?: (id: string) => void;
   onClose: () => void;
   editData?: Transaction | null;
 }
 
-const generateId = () => {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
-  return Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
-};
+const generateId = () => Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
 
 const TransactionForm: React.FC<TransactionFormProps> = ({ cards, onSave, onDelete, onClose, editData }) => {
   const [formData, setFormData] = useState({
@@ -43,9 +38,8 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ cards, onSave, onDele
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.cardId) return alert('Por favor, selecione um cartão de crédito.');
-    if (parseFloat(formData.value) <= 0) return alert('O valor da compra deve ser maior que zero.');
-
+    if (!formData.cardId) return alert('Selecione um cartão.');
+    
     const transaction: Transaction = {
       id: editData?.id || generateId(),
       description: formData.description,
@@ -59,82 +53,47 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ cards, onSave, onDele
     onSave(transaction);
   };
 
-  const handleDelete = () => {
-    if (editData && onDelete) {
-      onDelete(editData.id);
-      onClose();
-    }
-  };
-
-  const installmentValue = parseFloat(formData.value) / parseInt(formData.installments);
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl animate-in zoom-in-95 duration-200">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-            {editData ? 'Detalhes da Compra' : 'Novo Registro'}
+    <div className="fixed inset-0 z-[60] flex items-end md:items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+      <div className="bg-white dark:bg-zinc-900 w-full md:max-w-md rounded-t-[32px] md:rounded-[32px] p-8 shadow-2xl animate-in slide-in-from-bottom-full md:slide-in-from-bottom-0 duration-500 overflow-y-auto max-h-[90vh]">
+        <div className="flex justify-between items-center mb-8">
+          <h2 className="text-2xl font-black text-slate-900 dark:text-white">
+            {editData ? 'Editar Compra' : 'Nova Compra'}
           </h2>
-          {editData && onDelete && (
-            <button
-              type="button"
-              onClick={handleDelete}
-              className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors flex items-center gap-1 text-xs font-bold"
-              title="Excluir este registro permanentemente"
-            >
-              <Trash2 size={16} /> Excluir
-            </button>
-          )}
+          <button onClick={onClose} className="p-2 bg-slate-100 dark:bg-zinc-800 rounded-full"><X size={20} /></button>
         </div>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Descrição</label>
+            <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">O que você comprou?</label>
             <input
               required
               type="text"
-              className="w-full px-4 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-              placeholder="Ex: Netflix, Supermercado..."
+              className="w-full px-5 py-4 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 dark:text-white text-lg font-bold outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Ex: Jantar, Amazon..."
               value={formData.description}
               onChange={e => setFormData({ ...formData, description: e.target.value })}
             />
           </div>
 
-          <div className="flex items-center gap-2 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl cursor-pointer select-none" onClick={() => setFormData({...formData, isRecurring: !formData.isRecurring})}>
-            <input 
-              type="checkbox" 
-              checked={formData.isRecurring} 
-              onChange={() => {}} 
-              className="w-4 h-4 rounded text-blue-600"
-            />
-            <div className="flex-1">
-              <p className="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1">
-                <RefreshCw size={14} className={formData.isRecurring ? 'animate-spin-slow text-blue-500' : ''} />
-                Gasto Recorrente (Assinatura)
-              </p>
-              <p className="text-[10px] text-slate-500">Repete automaticamente todos os meses.</p>
-            </div>
-          </div>
-
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Valor Total (R$)</label>
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Valor</label>
               <input
                 required
                 type="number"
                 step="0.01"
-                min="0.01"
-                className="w-full px-4 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
-                placeholder="0,00"
+                className="w-full px-5 py-4 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 dark:text-white text-lg font-bold outline-none"
+                placeholder="R$ 0,00"
                 value={formData.value}
                 onChange={e => setFormData({ ...formData, value: e.target.value })}
               />
             </div>
             {!formData.isRecurring && (
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Parcelas</label>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Parcelas</label>
                 <select
-                  className="w-full px-4 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full px-5 py-4 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 dark:text-white text-lg font-bold outline-none"
                   value={formData.installments}
                   onChange={e => setFormData({ ...formData, installments: e.target.value })}
                 >
@@ -146,52 +105,60 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ cards, onSave, onDele
             )}
           </div>
 
+          <div className="flex items-center gap-3 p-4 bg-blue-50/50 dark:bg-blue-500/5 rounded-2xl cursor-pointer" onClick={() => setFormData({...formData, isRecurring: !formData.isRecurring})}>
+            <input type="checkbox" checked={formData.isRecurring} readOnly className="w-5 h-5 rounded-lg text-blue-600" />
+            <div className="flex-1">
+              <p className="text-sm font-bold flex items-center gap-2">
+                <RefreshCw size={14} className={formData.isRecurring ? 'animate-spin-slow text-blue-600' : ''} />
+                Compra Recorrente
+              </p>
+              <p className="text-[10px] text-slate-500 font-bold">Cobrar automaticamente todos os meses.</p>
+            </div>
+          </div>
+
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Data de Início</label>
+            <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Data da Compra</label>
             <input
               required
               type="date"
-              className="w-full px-4 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full px-5 py-4 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 font-bold outline-none"
               value={formData.date}
               onChange={e => setFormData({ ...formData, date: e.target.value })}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cartão Utilizado</label>
-            <select
-              required
-              className="w-full px-4 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
-              value={formData.cardId}
-              onChange={e => setFormData({ ...formData, cardId: e.target.value })}
-            >
-              <option value="">Selecione um cartão</option>
+            <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Qual Cartão?</label>
+            <div className="flex gap-2 overflow-x-auto pb-2 snap-x hide-scrollbar">
               {cards.map(card => (
-                <option key={card.id} value={card.id}>{card.name}</option>
+                <button
+                  key={card.id}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, cardId: card.id })}
+                  className={`px-6 py-3 rounded-2xl border-2 transition-all whitespace-nowrap font-bold text-sm snap-center ${formData.cardId === card.id ? 'border-blue-600 bg-blue-600 text-white' : 'border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-slate-500'}`}
+                >
+                  {card.name}
+                </button>
               ))}
-            </select>
+            </div>
           </div>
 
-          {!formData.isRecurring && parseInt(formData.installments) > 1 && !isNaN(installmentValue) && (
-            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-sm text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-800">
-              Cada parcela será de aproximadamente <strong>R$ {installmentValue.toFixed(2)}</strong>
-            </div>
-          )}
-
-          <div className="flex gap-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 px-4 py-2 border rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
-            >
-              Cancelar
-            </button>
+          <div className="flex flex-col gap-3 pt-4">
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors shadow-lg shadow-blue-500/30"
+              className="w-full py-5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black text-lg transition-all shadow-xl shadow-blue-500/30"
             >
-              {editData ? 'Salvar Alterações' : 'Confirmar Compra'}
+              Confirmar
             </button>
+            {editData && onDelete && (
+              <button
+                type="button"
+                onClick={() => onDelete(editData.id)}
+                className="w-full py-4 text-red-600 font-bold flex items-center justify-center gap-2"
+              >
+                <Trash2 size={18} /> Excluir Compra
+              </button>
+            )}
           </div>
         </form>
       </div>
