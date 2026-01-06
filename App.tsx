@@ -61,8 +61,13 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
-    if (isDarkMode) document.documentElement.classList.add('dark');
-    else document.documentElement.classList.remove('dark');
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('intellicard_theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('intellicard_theme', 'light');
+    }
   }, [isDarkMode]);
 
   useEffect(() => {
