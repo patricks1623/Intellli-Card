@@ -170,10 +170,6 @@ const App: React.FC = () => {
               <div className="text-4xl font-black text-blue-600 dark:text-blue-400 mt-2">
                 {formatCurrency(projectionData[0]?.total || 0, isPrivateMode)}
               </div>
-              <div className="mt-6 flex items-center gap-2 text-emerald-600 font-bold text-sm">
-                <TrendingUp size={16} /> 
-                <span>Dentro do limite previsto</span>
-              </div>
             </div>
 
             <div className="space-y-4">
