@@ -129,14 +129,19 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ cards, onSave, onDele
 
           <div>
             <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Qual Cartão?</label>
-            <div className="flex gap-2 overflow-x-auto pb-2 snap-x hide-scrollbar">
+            <div className="flex gap-2 overflow-x-auto pb-4 snap-x hide-scrollbar">
               {cards.map(card => (
                 <button
                   key={card.id}
                   type="button"
                   onClick={() => setFormData({ ...formData, cardId: card.id })}
-                  className={`px-6 py-3 rounded-2xl border-2 transition-all whitespace-nowrap font-bold text-sm snap-center ${formData.cardId === card.id ? 'border-blue-600 bg-blue-600 text-white' : 'border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-slate-500'}`}
+                  className={`px-6 py-3 rounded-2xl border-2 transition-all whitespace-nowrap font-bold text-sm snap-center flex items-center gap-2 ${
+                    formData.cardId === card.id 
+                      ? `bg-gradient-to-br ${card.color} border-transparent text-white shadow-lg shadow-black/10` 
+                      : 'border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-slate-500 hover:border-slate-300'
+                  }`}
                 >
+                  <div className={`w-2 h-2 rounded-full ${formData.cardId === card.id ? 'bg-white' : `bg-gradient-to-br ${card.color}`}`} />
                   {card.name}
                 </button>
               ))}
